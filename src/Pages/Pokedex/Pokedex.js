@@ -1,5 +1,8 @@
 import Pokedex from 'pokedex-promise-v2';
 import { useState, useEffect } from 'react';
+import {addDoc, collection} from 'firebase/firestore';
+import { db } from '../../firebaseConnection';
+import { toast } from 'react-toastify';
 
 function PokedexPage() {
     const imgLinkBase = 'https://raw.githubusercontent.com/HybridShivam/Pokemon/master/assets/images/';
@@ -7,8 +10,12 @@ function PokedexPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const P = new Pokedex();
     const [list, setList] = useState(['']);
-    const [spriteUrl, setSpriteUrl] = useState(['']);
+    const [poke, setPoke] = useState('');
+
+    // const [spriteUrl, setSpriteUrl] = useState(['']);
+    const userLocal = JSON.parse(localStorage.getItem('detailUser'));
     useEffect(() => {
+
         async function loadPokemon() {
        
        
@@ -34,7 +41,7 @@ function PokedexPage() {
       loadPokemon();
       
     }, []);
-      async function loadMorePokemon() {
+    async function loadMorePokemon() {
        
             setCurrentPage(old => old + 1)
             const apiParams = {
@@ -52,8 +59,22 @@ function PokedexPage() {
             })
         
       
+    }
+       function handleAdd(id) {
+        setPoke(id);
+        console.log(poke);
       }
-
+      async function registerCapture(pokeid) {
+        await addDoc(collection(db, 'shinydex'), {
+            pokemon: pokeid,
+            created: new Date(),
+            userUID: userLocal?.uid
+        }).then(() => {
+            toast.success('Registrado com sucesso')
+        }).catch(() => {
+            toast.warn('Erro')
+        })
+      }
     return(
         <div className="Pokedex container">
             <div className='title-holder'>
@@ -69,9 +90,9 @@ function PokedexPage() {
                         {list.map((item) => { 
                                 if(item){
                                     let url = item.url;
-                                    console.log(url)
+                                    
                                     let id = url.slice(34);
-                                    console.log(id)
+                                    
                                     let idR = id.replaceAll('/','');
                                     let lengthId = idR.length;
                                     var idP = '';
@@ -81,7 +102,7 @@ function PokedexPage() {
                                      idP = idR;
                                 }
                                 return(
-                                    <li   key={item.name} className='list-group-item'>
+                                    <li id={idP}  key={idP} className='list-group-item'>
                                         <div className='row'>
                                             <div className='col-sm-12 col-md-4 d-flex align-center flex-column'>
                                                 <img src={imgLinkBase+idP+'.png'}></img>
@@ -97,7 +118,12 @@ function PokedexPage() {
                                             </div>
                                         
                                         </div>
-                                      
+                                      <button type='button' onClick={() => {
+                                       
+                                       registerCapture(idP)
+                                      }} className='btn btn-primary'>
+                                        Registrar como obtido
+                                      </button>
                                         
                                     </li>
                                 )

@@ -11,9 +11,10 @@ export default function Private ({children}) {
             onAuthStateChanged(auth, (user) => {
                 if(user){
                     //logado
+                    console.log(user)
                     setLoading(false);
                     setSigned(true)
-                    
+                    localStorage.setItem('detailUser', JSON.stringify(user))
                 }else{
                     //nao logado
                     setLoading(false);

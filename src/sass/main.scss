@@ -3,6 +3,8 @@
 
 body {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 .navbar {
@@ -34,7 +36,7 @@ body {
         
     }
 }
-.App {
+#App {
     .Home {
         .content-container {
             .text-container {
@@ -47,11 +49,21 @@ body {
     .Pokedex {
         .list-group {
             min-height: 100vh;
-            .list-group-item {
-                margin-bottom: 75px;
+           .list-group-item {
+            img {
+                max-width: 200px;
             }
+            .pokemon-name {
+                text-transform: capitalize;
+            }
+           }
         }
         
+    }
+    .Auth {
+        form {
+            max-width: 600px;
+        }
     }
 }
 p.load-threshold {

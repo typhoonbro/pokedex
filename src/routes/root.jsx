@@ -1,6 +1,43 @@
-import { Outlet, Link, NavLink } from "react-router-dom";
+import { Outlet, Link, NavLink, useNavigate } from "react-router-dom";
 import Pokeball from '../pokeball.png' ;
+import {db,auth} from '../firebaseConnection';
+import { onAuthStateChanged } from "firebase/auth";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import { useEffect, useState } from "react";
+
+
 function Root() {
+
+    const navigate = useNavigate();
+    const [user, setUser] = useState(false);
+    const [userDetails, setUserDetails] = useState({});
+    const [menuLogin, setMenuLogin] = useState(true);
+    const [menuLogado, setMenuLogado] = useState(false)
+    useEffect(() => {
+        async function checkLogin() {
+            onAuthStateChanged(auth, (user) => {
+                if(user){
+                    //logado
+                    setUser(true);
+                    setUserDetails({
+                        uid: user.uid,
+                        email: user.email
+                    })
+                    setMenuLogin(false);
+                    setMenuLogado(true);
+                    
+                }else{
+                    //nao logado
+                    setUser(false);
+                    setUserDetails({});
+                }
+            });
+            
+        }
+        checkLogin();
+    },[])
+
     return (
         <div>
            
@@ -15,7 +52,7 @@ function Root() {
                     </div>
                    
                     <div className="col text-center">
-                    <Link to={`Home`} className="navbar-brand">
+                    <Link to={`/`} className="navbar-brand">
                         <img src={Pokeball} alt="Home" />
                     </Link>
                     </div>
@@ -36,7 +73,7 @@ function Root() {
                         
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <NavLink to={`home`} className={({ isActive }) =>
+                            <NavLink to={`/`} className={({ isActive }) =>
                             isActive
                             ? 'nav-link active'
                             
@@ -52,12 +89,37 @@ function Root() {
                         
                         }><p data-bs-dismiss='offcanvas'>Pokedex</p></NavLink>
                         </li>
+                        
+                        { menuLogin && (
+                            <li class="nav-item">
+                            <NavLink to={`Login`} className={({isActive})=>
+                            isActive
+                            ? 'nav-link active'
+                            : 'nav-link '
+                            
+                            }><p data-bs-dismiss='offcanvas'>Cadastro/Login</p></NavLink>
+                            </li>
+                        )
+
+                        }
+                        { menuLogado && (
+                            <li class="nav-item">
+                            <NavLink to={`Detail`} className={({isActive})=>
+                            isActive
+                            ? 'nav-link active'
+                            : 'nav-link '
+                            
+                            }><p data-bs-dismiss='offcanvas'>Acesse sua conta</p></NavLink>
+                            </li>
+                        )}
+                        
                     
                     </ul>
                     
                 </div>
             </div>
             <div id='App'>
+                <ToastContainer autoClose={4000} />
                 <Outlet/>
             </div>
         </div>

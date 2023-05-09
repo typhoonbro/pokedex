@@ -2,7 +2,8 @@ import Pokedex from 'pokedex-promise-v2';
 import { useState, useEffect } from 'react';
 
 function PokedexPage() {
-
+    const imgLinkBase = 'https://raw.githubusercontent.com/HybridShivam/Pokemon/master/assets/images/';
+    const shinyBaseUrl = 'https://img.pokemondb.net/sprites/home/shiny/2x/';
     const [currentPage, setCurrentPage] = useState(1);
     const P = new Pokedex();
     const [list, setList] = useState(['']);
@@ -31,6 +32,7 @@ function PokedexPage() {
       
       }
       loadPokemon();
+      
     }, []);
       async function loadMorePokemon() {
        
@@ -39,7 +41,7 @@ function PokedexPage() {
                 limit: 20,
                 offset: 20 * currentPage
             }
-            P.getPokemonFormsList(apiParams)
+            P.getPokemonsList(apiParams)
             .then((response) => {
                 console.log(response.results);
                 const pokemons = response.results
@@ -65,14 +67,45 @@ function PokedexPage() {
                     <ul  className='list-group'>
                    
                         {list.map((item) => { 
-                                
+                                if(item){
+                                    let url = item.url;
+                                    console.log(url)
+                                    let id = url.slice(34);
+                                    console.log(id)
+                                    let idR = id.replaceAll('/','');
+                                    let lengthId = idR.length;
+                                    var idP = '';
+                                if( lengthId < 3 ) {
+                                     idP = idR.padStart(3,0);
+                                } else {
+                                     idP = idR;
+                                }
                                 return(
                                     <li   key={item.name} className='list-group-item'>
+                                        <div className='row'>
+                                            <div className='col-sm-12 col-md-4 d-flex align-center flex-column'>
+                                                <img src={imgLinkBase+idP+'.png'}></img>
+                                                <img src={shinyBaseUrl+item.name+'.jpg'}></img>
+                                            </div>
+                                            <div className='info col-sm-12 col-md-8 d-flex align-start flex-column'>
+                                            <p className='h2 pokemon-name'>{`${item.name}`}</p>
+                                            <p className=''>National dex nº:  
+                                                <strong>
+                                                {` ${idP}`}
+                                                </strong>
+                                            </p>
+                                            </div>
+                                        
+                                        </div>
                                       
-                                        <p>{`${item.name}`}</p>
                                         
                                     </li>
                                 )
+
+                                } else {
+                                    return
+                                }
+                               
                             
                             
                         })}

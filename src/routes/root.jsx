@@ -1,12 +1,31 @@
 import { Outlet, Link, NavLink } from "react-router-dom";
-
+import Pokeball from '../pokeball.png' ;
 function Root() {
     return (
         <div>
            
-            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
-                Menu
-            </button>
+           
+
+            <nav class="navbar navbar-expand-lg bg-light">
+                <div class="container-fluid row">
+                    <div className="menu-toggler">
+                        <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+                            <span className="navbar-toggler-icon"></span>
+                        </button>  
+                    </div>
+                   
+                    <div className="col text-center">
+                    <Link to={`Home`} className="navbar-brand">
+                        <img src={Pokeball} alt="Home" />
+                    </Link>
+                    </div>
+                </div>
+            </nav>
+
+
+
+
+
             <div className="offcanvas offcanvas-start bg-dark" tabIndex='-1' id="sidebarMenu">
                     <div className="offcanvas-header">
                         <h5 class="offcanvas-title text-light" id="offcanvasExampleLabel">Menu</h5>

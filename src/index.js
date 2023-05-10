@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import Home from './Pages/Home/Home';
 import Root from './routes/root';
 import ErrorPage from './Pages/Error/Error.js';
-import PokedexPage from './Pages/Pokedex/Pokedex';
+import {PokedexPage} from './Pages/Pokedex/Pokedex';
 import Auth from './Pages/Auth/Auth';
 import Private from './routes/Private';
 import {RouterProvider, createBrowserRouter}  from 'react-router-dom';

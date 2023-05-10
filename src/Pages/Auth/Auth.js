@@ -43,7 +43,6 @@ function Auth() {
         await createUserWithEmailAndPassword(auth, email, senha)
         .then(() => {
             toast.success('Usuário cadastrado com sucesso!');
-            console.log('sucesso');
             setEmail('');
             setSenha('');
             navigate('/', {replace: true})
@@ -71,11 +70,7 @@ function Auth() {
             }
         })
     }
-    async function signOutUser() {
-        await signOut(auth);
-        setUser(false);
-        setUserDetails({});
-    }
+ 
     return(
         <div className="Auth">
             <div className="container">

@@ -1,8 +1,45 @@
 import Pokedex from 'pokedex-promise-v2';
 import { useState, useEffect } from 'react';
-import {addDoc, collection} from 'firebase/firestore';
+import {
+    addDoc, 
+    collection,
+    query,
+    orderBy,
+    onSnapshot,
+    where
+} from 'firebase/firestore';
 import { db } from '../../firebaseConnection';
 import { toast } from 'react-toastify';
+
+
+function trimUrlForShinyListBanco(item) {
+    if(item){
+        let url = item.url;
+        
+        let id = url.slice(34);
+        
+        let idR = id.replaceAll('/','');
+        return idR
+    }
+   
+}
+function trimURLForImg(item) {
+    if(item){
+        let url = item.url;
+        
+        let id = url.slice(34);
+        
+        let idR = id.replaceAll('/','');
+        let lengthId = idR.length;
+        var idP = '';
+    if( lengthId < 3 ) {
+         idP = idR.padStart(3,0);
+    } else {
+         idP = idR;
+    }
+    }
+    return idP
+}
 
 function PokedexPage() {
     const imgLinkBase = 'https://raw.githubusercontent.com/HybridShivam/Pokemon/master/assets/images/';
@@ -12,26 +49,47 @@ function PokedexPage() {
     const [list, setList] = useState(['']);
     const [poke, setPoke] = useState('');
 
-    // const [spriteUrl, setSpriteUrl] = useState(['']);
+    const [shinydexList, setshinydexList] = useState(['']);
     const userLocal = JSON.parse(localStorage.getItem('detailUser'));
     useEffect(() => {
 
         async function loadPokemon() {
        
-       
+            
             const apiParams = {
                 limit: 20,
                 offset: 0
             }
             // P.getPokemonFormsList(apiParams)
-            P.getPokemonsList(apiParams)
+           await P.getPokemonsList(apiParams)
             .then((response) => {
-                console.log(response.results);
                 const pokemons = response.results
                 setList(pokemons);
                 
-                
+                if(userLocal){
+                    const data = userLocal;
+
+                    const shinyList = collection(db, 'shinydex')
+                    const q = query(shinyList, orderBy('created','desc'), where('userUID','==', data?.uid));
+
+                    const subbed = onSnapshot(q,(snapshot) => {
+                        let list = [];
+                        snapshot.forEach((doc) => {
+                            list.push({
+                                id: doc.id,
+                                pokemonStringId: doc.data().pokemonStringId,
+                                pokemonId: doc.data().pokemonId,
+                                pokemonName: doc.data().pokemonName,
+                                userUID: doc.data().userUID
+                            })
+                            
+                        setshinydexList(list)
+                    })
+                    
+                })
+                }
             })
+       
             .catch((error) => {
                 console.log(`Error: ${error}`)
             })
@@ -50,7 +108,7 @@ function PokedexPage() {
             }
             P.getPokemonsList(apiParams)
             .then((response) => {
-                console.log(response.results);
+                
                 const pokemons = response.results
                 setList([...list, ...pokemons])
             })
@@ -60,21 +118,54 @@ function PokedexPage() {
         
       
     }
-       function handleAdd(id) {
-        setPoke(id);
-        console.log(poke);
-      }
-      async function registerCapture(pokeid) {
+    async function deleteFromShinylist() {
+        return
+    }
+      async function registerCapture(pokeid, pokeidbanco, pokename, pokeURL) {
         await addDoc(collection(db, 'shinydex'), {
-            pokemon: pokeid,
+            pokemonStringId: pokeid,
             created: new Date(),
-            userUID: userLocal?.uid
+            userUID: userLocal?.uid,
+            pokemonId: pokeidbanco,
+            pokeName: pokename,
+            pokeURL: pokeURL
         }).then(() => {
             toast.success('Registrado com sucesso')
-        }).catch(() => {
-            toast.warn('Erro')
+        }).catch((err) => {
+            toast.warn(`Erro: ${err}`)
         })
       }
+    function filterItems(arr, query) {
+        let item = []
+        arr.forEach((dc) => {
+            if(dc.pokemonStringId === query) {
+                item.push(dc);
+            }
+        })
+        return(item)
+        //     return( arr.filter((el) => el.toLowerCase().includes(query.toLowerCase())))
+
+       
+        // else return
+
+    }
+    function showButton(bool, id, idBanco, namePoke, pokeURL){
+        if(bool.length > 0) {
+            return(
+                <p className='h5'>Forma shiny obtida</p>
+            )
+        } else {
+            return(
+                <button type='button' onClick={() => {
+                                
+                    registerCapture(id, idBanco, namePoke, pokeURL)
+                }} className='btn btn-primary'>
+                    Registrar como obtido
+                </button>
+            )
+        }
+    }
+    
     return(
         <div className="Pokedex container">
             <div className='title-holder'>
@@ -88,26 +179,15 @@ function PokedexPage() {
                     <ul  className='list-group'>
                    
                         {list.map((item) => { 
-                                if(item){
-                                    let url = item.url;
-                                    
-                                    let id = url.slice(34);
-                                    
-                                    let idR = id.replaceAll('/','');
-                                    let lengthId = idR.length;
-                                    var idP = '';
-                                if( lengthId < 3 ) {
-                                     idP = idR.padStart(3,0);
-                                } else {
-                                     idP = idR;
-                                }
+                                let idP = trimURLForImg(item);
+                                let idB = trimUrlForShinyListBanco(item);
+                                var namePoke = JSON.stringify(item.name);
+                                let pokeURL = item.url;
+                                const esseItemNaShinydex = filterItems(shinydexList, idP);
                                 return(
                                     <li id={idP}  key={idP} className='list-group-item'>
                                         <div className='row'>
-                                            <div className='col-sm-12 col-md-4 d-flex align-center flex-column'>
-                                                <img src={imgLinkBase+idP+'.png'}></img>
-                                                <img src={shinyBaseUrl+item.name+'.jpg'}></img>
-                                            </div>
+                                            
                                             <div className='info col-sm-12 col-md-8 d-flex align-start flex-column'>
                                             <p className='h2 pokemon-name'>{`${item.name}`}</p>
                                             <p className=''>National dex nº:  
@@ -115,22 +195,22 @@ function PokedexPage() {
                                                 {` ${idP}`}
                                                 </strong>
                                             </p>
+                                            <div>
+                                            {showButton(esseItemNaShinydex, idP, idB, namePoke, pokeURL)}
                                             </div>
-                                        
+                                            </div>
+                                            <div className='image col-sm-12 col-md-4 d-flex align-center text-center'>
+                                                <img src={imgLinkBase+idP+'.png'}></img>
+                                                <img src={shinyBaseUrl+item.name+'.jpg'}></img>
+                                            </div>
                                         </div>
-                                      <button type='button' onClick={() => {
-                                       
-                                       registerCapture(idP)
-                                      }} className='btn btn-primary'>
-                                        Registrar como obtido
-                                      </button>
+                                    
+                                        
                                         
                                     </li>
                                 )
 
-                                } else {
-                                    return
-                                }
+                               
                                
                             
                             
@@ -145,4 +225,4 @@ function PokedexPage() {
         
     )
 }
-export default PokedexPage;
+export  {PokedexPage, trimURLForImg, trimUrlForShinyListBanco};

@@ -43,7 +43,7 @@ function Root() {
            
            
 
-            <nav class="navbar navbar-expand-lg bg-light">
+            <nav class="navbar navbar-expand-lg bg-light sticky-top">
                 <div class="container-fluid row">
                     <div className="menu-toggler">
                         <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">

@@ -1,23 +1,21 @@
 import { signOut,
-    onAuthStateChanged,
-signOutUser } from "firebase/auth"
+    onAuthStateChanged } from "firebase/auth"
 import Pokedex from 'pokedex-promise-v2';
-import { addDoc, 
+import { 
     collection,
     query,
     orderBy,
     onSnapshot,
     doc,
     deleteDoc,
-    where} from 'firebase/firestore'
+    where
+} from 'firebase/firestore'
 import { useNavigate } from "react-router-dom"
 import { auth, db } from "../../firebaseConnection";
 import { useEffect, useState } from "react";
-import { trimURLForImg } from "../Pokedex/Pokedex";
 import { toast } from "react-toastify";
 
 export default function Detail() {
-    const imgLinkBase = 'https://raw.githubusercontent.com/HybridShivam/Pokemon/master/assets/images/';
     const shinyBaseUrl = 'https://img.pokemondb.net/sprites/home/shiny/2x/';
     const [user, setUser] = useState(false);
     const [userDetails, setUserDetails] = useState({})
@@ -35,10 +33,6 @@ export default function Detail() {
        }
        return idP;
     }
-
-
-
-
     useEffect(() =>{
         async function checkLogin() {
             onAuthStateChanged(auth, (user) => {
@@ -73,11 +67,8 @@ export default function Detail() {
                 snapshot.forEach((doc) => {
                     const resource = 'api/v2/pokemon/';
                     const resourName = resource+doc.data().pokemonId;
-                    
                     P.getResource(resourName) 
                             .then((response) => {
-                                // console.log(response)
-                                
                                 listaPokemonsDetail.push({
                                     Id: doc.id,
                                     pokemonId: response.id,
@@ -85,21 +76,16 @@ export default function Detail() {
                                     pokemonStringId: trimURL(JSON.stringify(response.id)),
                                 })
                                 setshinydexList(listaPokemonsDetail)
-                                
                             })
-                    
                             .catch((error) => {
                                 console.log(`Error: ${error}`)
                     }) 
                 })
-                
             })
-            
       }
     getShinyPokemon();
 
-    },{})
-
+    },[])
     async function signOutUser() {
         await signOut(auth);
         setUser(false);
@@ -111,14 +97,14 @@ export default function Detail() {
         await deleteDoc(docRef)
         .then(() =>{
             toast.success('Pokemon removido com sucesso')
-            
+            if(shinydexList.length === 1){
+                setshinydexList([]);
+            }
         })
         .catch((err) => {
             toast.warn(`Erro: ${err}`)
         })
     }
-
-
     return(
         <div className="Detail">
             <div className="container">
@@ -128,17 +114,11 @@ export default function Detail() {
                     <li className="list-group-item"><p>{userDetails.email}</p></li>
                     <li className="list-group-item"><p>{userDetails.uid}</p></li>
                 </ul>
-
             </div>
             <button onClick={signOutUser} className="btn btn-primary mt-3">Sair</button>
-
-
                 <div className="Shinydex-list">
                     <ul className='list-group'>
-                       
                         {shinydexList.map((item) => { 
-                               
-                               
                                 return(
                                     <li id={item.pokemonId}  key={item.pokemonId} className='list-group-item'>
                                         <div className='row'>
@@ -155,22 +135,12 @@ export default function Detail() {
                                             </div>
                                             </div>
                                             <div className='image col-sm-12 col-md-4 d-flex align-center text-center'>
-                                                
                                                 <img src={shinyBaseUrl+item.pokemonName+'.jpg'}></img>
                                             </div>
                                         </div>
-                                    
-                                        
-                                        
                                     </li>
                                 )
-
-                               
-                               
-                            
-                            
                         })}
-                       
                     </ul>
                 </div>
             </div>

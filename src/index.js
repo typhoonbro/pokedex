@@ -11,9 +11,6 @@ import '../node_modules/bootstrap/dist/js/bootstrap.bundle.js';
 import './css/main.css';
 import Detail from './Pages/Detail/Detail';
 
-
-
-
 const router = createBrowserRouter([
   {
     element: <Root />,

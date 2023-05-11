@@ -26,17 +26,15 @@ function trimUrlForShinyListBanco(item) {
 function trimURLForImg(item) {
     if(item){
         let url = item.url;
-        
+        //indice da ultima barra, e dai slice TODO
         let id = url.slice(34);
         
         let idR = id.replaceAll('/','');
         let lengthId = idR.length;
         var idP = '';
-    if( lengthId < 3 ) {
+    
          idP = idR.padStart(3,0);
-    } else {
-         idP = idR;
-    }
+    
     }
     return idP
 }
@@ -121,20 +119,7 @@ function PokedexPage() {
     async function deleteFromShinylist() {
         return
     }
-      async function registerCapture(pokeid, pokeidbanco, pokename, pokeURL) {
-        await addDoc(collection(db, 'shinydex'), {
-            pokemonStringId: pokeid,
-            created: new Date(),
-            userUID: userLocal?.uid,
-            pokemonId: pokeidbanco,
-            pokeName: pokename,
-            pokeURL: pokeURL
-        }).then(() => {
-            toast.success('Registrado com sucesso')
-        }).catch((err) => {
-            toast.warn(`Erro: ${err}`)
-        })
-      }
+    
     function filterItems(arr, query) {
         let item = []
         arr.forEach((dc) => {
@@ -143,10 +128,7 @@ function PokedexPage() {
             }
         })
         return(item)
-        //     return( arr.filter((el) => el.toLowerCase().includes(query.toLowerCase())))
-
-       
-        // else return
+      
 
     }
     function showButton(bool, id, idBanco, namePoke, pokeURL){
@@ -165,6 +147,20 @@ function PokedexPage() {
             )
         }
     }
+    async function registerCapture(pokeid, pokeidbanco, pokename, pokeURL) {
+        await addDoc(collection(db, 'shinydex'), {
+            pokemonStringId: pokeid,
+            created: new Date(),
+            userUID: userLocal?.uid,
+            pokemonId: pokeidbanco,
+            pokeName: pokename,
+            pokeURL: pokeURL
+        }).then(() => {
+            toast.success('Registrado com sucesso')
+        }).catch((err) => {
+            toast.warn(`Erro: ${err}`)
+        })
+      }
     
     return(
         <div className="Pokedex container">
@@ -177,7 +173,7 @@ function PokedexPage() {
                 </div> */}
                 <div  className="list-container">
                     <ul  className='list-group'>
-                   
+                    
                         {list.map((item) => { 
                                 let idP = trimURLForImg(item);
                                 let idB = trimUrlForShinyListBanco(item);
@@ -209,11 +205,6 @@ function PokedexPage() {
                                         
                                     </li>
                                 )
-
-                               
-                               
-                            
-                            
                         })}
                     </ul>
                     <div className='container'>
